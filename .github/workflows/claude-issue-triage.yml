@@ -1,0 +1,58 @@
+name: Claude Issue Triage
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  triage:
+    if: github.event.sender.type != 'Bot'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Triage issue
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: '--allowedTools "Bash(gh issue view:*),Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(gh label list:*),Bash(gh api:*),Glob,Grep,Read"'
+          prompt: |
+            Triage del issue #${{ github.event.issue.number }} en ${{ github.repository }}.
+
+            1. Lee el issue: `gh issue view ${{ github.event.issue.number }} --json title,body,labels`
+            2. Lee los labels disponibles: `gh label list`. Usa SOLO esos, no crees labels nuevos.
+            3. Explora el repositorio para localizar el codigo implicado antes de diagnosticar.
+            4. Aplica los labels apropiados: `gh issue edit ${{ github.event.issue.number }} --add-label "..."`
+            5. Publica el diagnostico como comentario.
+
+            El diagnostico debe ser accionable para que otro agente implemente la solucion despues.
+            Formato exacto, en espanol, sin relleno:
+
+            <!-- claude-triage -->
+            ## Diagnostico
+
+            **Tipo:** bug | feature | duda | invalido
+            **Severidad:** critica | alta | media | baja
+            **Confianza:** alta | media | baja
+
+            **Problema:** que falla o que se pide, en una frase.
+            **Causa raiz:** la causa real, no el sintoma. Si no la determinas con el codigo a la vista, dilo.
+            **Archivos implicados:** `ruta/archivo.ext:linea` por cada uno. Si ninguno, escribe "ninguno identificado".
+            **Reproduccion:** pasos minimos, o "no reproducible con la informacion dada".
+            **Solucion propuesta:** enfoque concreto, el cambio minimo que lo resuelve.
+            **Falta informacion:** preguntas concretas al autor, o "ninguna".
+
+            Antes de comentar, busca un comentario previo que contenga `<!-- claude-triage -->`
+            (`gh api repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments --jq '.[] | select(.body | contains("claude-triage")) | .id'`).
+            Si existe, actualizalo con `gh api -X PATCH repos/${{ github.repository }}/issues/comments/<id> -f body=...`.
+            Si no existe, crealo con `gh issue comment`.
+
+            No modifiques codigo. No abras PRs. Solo labels y el comentario.
