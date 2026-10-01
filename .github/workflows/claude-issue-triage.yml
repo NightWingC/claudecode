@@ -34,6 +34,8 @@ jobs:
             5. Publica el diagnostico como comentario.
 
             El diagnostico debe ser accionable para que otro agente implemente la solucion despues.
+            El comentario debe estar escrito en Markdown valido para GitHub (GFM):
+            encabezados, negritas, listas y rutas/codigo entre backticks. Nada de texto plano.
             Formato exacto, en espanol, sin relleno:
 
             <!-- claude-triage -->
