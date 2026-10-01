@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tetris</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #000;
+      color: #fff;
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      gap: 12px;
+    }
+    h1 {
+      font-size: 40px;
+      letter-spacing: 12px;
+      color: #0ff;
+      text-shadow: 0 0 12px #0ff;
+    }
+    .game { display: flex; gap: 20px; }
+    canvas { display: block; border: 1px solid #222; }
+    .panel { display: flex; flex-direction: column; gap: 12px; width: 120px; }
+    .panel p { font-size: 14px; color: #888; }
+    .panel span { display: block; font-size: 20px; color: #fff; }
+  </style>
+</head>
+<body>
+  <h1>TETRIS</h1>
+  <div class="game">
+    <canvas id="canvas" width="300" height="600"></canvas>
+    <div class="panel">
+      <p>PUNTOS<span id="score">0</span></p>
+      <p>LÍNEAS<span id="lines">0</span></p>
+      <p>NIVEL<span id="level">1</span></p>
+      <canvas id="next" width="120" height="120"></canvas>
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>
